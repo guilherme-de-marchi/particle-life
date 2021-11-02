@@ -1,6 +1,7 @@
 package particle
 
 import (
+	"math"
 	"math/rand"
 	"time"
 
@@ -37,4 +38,27 @@ func (p *Particle) SetPosition(x, y int) {
 func (p *Particle) SetRandomPosition(winWidth, winHeight int) {
 	rand.Seed(time.Now().UnixNano())
 	p.SetPosition(rand.Intn(winWidth), rand.Intn(winHeight))
+}
+
+func (p *Particle) CalcEnergyFieldIn(pTarget *Particle) float64 {
+	dist := GetDistanceBetween(p, pTarget)
+	radius := math.Sqrt(math.Pow(dist.x, 2) + math.Pow(dist.y, 2)) // Hipotenuse calc
+
+	return float64(p.Energy) / (2*math.Pi*radius + 1) // resultantEnergyField = energy / (2*PI*r+1)
+}
+
+func (p *Particle) CalcResultantMovimentByAxle(pAxlePos, pTargetAxlePos int, energyField float64) int {
+	if pTargetAxlePos >= pAxlePos {
+		return pTargetAxlePos - int(energyField)
+	} else {
+		return pTargetAxlePos + int(energyField)
+	}
+}
+
+func (p *Particle) InteractWith(pTarget *Particle) {
+	energyField := p.CalcEnergyFieldIn(pTarget)
+	pTarget.SetPosition(
+		p.CalcResultantMovimentByAxle(p.Xpos, pTarget.Xpos, energyField),
+		p.CalcResultantMovimentByAxle(p.Ypos, pTarget.Ypos, energyField),
+	)
 }

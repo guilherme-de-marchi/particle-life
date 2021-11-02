@@ -3,12 +3,19 @@ package main
 import (
 	"fmt"
 
+	"github.com/Guilherme-De-Marchi/particle-life/particle"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
-	SCREEN_WIDTH  = 800
-	SCREEN_HEIGHT = 600
+	WIN_WIDTH    = 800
+	WIN_HEIGHT   = 600
+	MAX_ENTITIES = 300
+)
+
+var (
+	proton   particle.Particle = *particle.NewParticle(10, [4]int{0, 255, 0, 255})
+	electron particle.Particle = *particle.NewParticle(30, [4]int{255, 0, 0, 255})
 )
 
 func main() {
@@ -20,7 +27,7 @@ func main() {
 	window, err := sdl.CreateWindow(
 		"Particle Life",
 		sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		SCREEN_WIDTH, SCREEN_HEIGHT,
+		WIN_WIDTH, WIN_HEIGHT,
 		sdl.WINDOW_OPENGL,
 	)
 	if err != nil {
@@ -39,9 +46,6 @@ func main() {
 		return
 	}
 	defer renderer.Destroy()
-
-	//proton := *particle.NewParticle(10, [4]int{0, 255, 0, 255})
-	//eletron := *particle.NewParticle(30, [4]int{255, 0, 0, 255})
 
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
