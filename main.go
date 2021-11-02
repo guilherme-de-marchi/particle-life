@@ -40,6 +40,9 @@ func main() {
 	}
 	defer renderer.Destroy()
 
+	//proton := *particle.NewParticle(10, [4]int{0, 255, 0, 255})
+	//eletron := *particle.NewParticle(30, [4]int{255, 0, 0, 255})
+
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
