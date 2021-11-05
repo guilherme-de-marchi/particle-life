@@ -9,13 +9,13 @@ import (
 
 const (
 	WIN_WIDTH    = 800
-	WIN_HEIGHT   = 600
+	WIN_HEIGHT   = 500
 	MAX_ENTITIES = 300
 )
 
 var (
-	proton   particle.Particle = *particle.NewParticle(10, [4]int{0, 255, 0, 255})
-	electron particle.Particle = *particle.NewParticle(30, [4]int{255, 0, 0, 255})
+	proton   *particle.Particle = particle.NewParticle(500, [4]uint8{0, 255, 0, 255})
+	electron *particle.Particle = particle.NewParticle(-1200, [4]uint8{255, 0, 0, 255})
 )
 
 func main() {
@@ -47,6 +47,14 @@ func main() {
 	}
 	defer renderer.Destroy()
 
+	var environment []*particle.Particle
+	environment = append(environment, particle.GenerateArrayOf(proton, 50, WIN_WIDTH, WIN_HEIGHT)...)
+	environment = append(environment, particle.GenerateArrayOf(electron, 50, WIN_WIDTH, WIN_HEIGHT)...)
+
+	for _, p := range environment {
+		p.SetRandomPosition(WIN_WIDTH, WIN_HEIGHT)
+	}
+
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
@@ -57,6 +65,20 @@ func main() {
 
 		renderer.SetDrawColor(255, 255, 255, 255)
 		renderer.Clear()
+
+		for _, p := range environment {
+			for _, subp := range environment {
+				p.InteractWith(subp, WIN_WIDTH, WIN_HEIGHT)
+				renderer.SetDrawColor(
+					p.Color[0],
+					p.Color[1],
+					p.Color[2],
+					p.Color[3],
+				)
+				renderer.DrawRect(p.Rect)
+				renderer.FillRect(p.Rect)
+			}
+		}
 
 		renderer.Present()
 	}

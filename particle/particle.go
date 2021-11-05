@@ -16,35 +16,40 @@ const (
 type Particle struct {
 	Energy     int
 	Xpos, Ypos int
-	Rect       sdl.Rect
-	Color      [4]int
+	Rect       *sdl.Rect
+	Color      [4]uint8
 }
 
-func NewParticle(energy int, color [4]int) *Particle {
+func NewParticle(energy int, color [4]uint8) *Particle {
 	return &Particle{
 		Energy: energy,
 		Color:  color,
+		Rect:   &sdl.Rect{W: RECT_WIDTH, H: RECT_HEIGHT},
 	}
 }
 
-func (p *Particle) SetPosition(x, y int) {
-	p.Xpos = x
-	p.Ypos = y
+func (p *Particle) SetPosition(x, y, winWidth, winHeight int) {
+	if x >= 0 && x <= winWidth {
+		p.Xpos = x
+		p.Rect.X = int32(x) - RECT_WIDTH/2
+	}
 
-	p.Rect.X = int32(x) - RECT_WIDTH/2
-	p.Rect.Y = int32(y) - RECT_HEIGHT/2
+	if y >= 0 && y <= winHeight {
+		p.Ypos = y
+		p.Rect.Y = int32(y) - RECT_HEIGHT/2
+	}
 }
 
 func (p *Particle) SetRandomPosition(winWidth, winHeight int) {
 	rand.Seed(time.Now().UnixNano())
-	p.SetPosition(rand.Intn(winWidth), rand.Intn(winHeight))
+	p.SetPosition(rand.Intn(winWidth), rand.Intn(winHeight), winWidth, winHeight)
 }
 
 func (p *Particle) CalcEnergyFieldIn(pTarget *Particle) float64 {
 	dist := GetDistanceBetween(p, pTarget)
 	radius := math.Sqrt(math.Pow(dist.x, 2) + math.Pow(dist.y, 2)) // Hipotenuse calc
 
-	return float64(p.Energy) / (2*math.Pi*radius + 1) // resultantEnergyField = energy / (2*PI*r+1)
+	return float64(p.Energy) / (2 * math.Pi * radius) // resultantEnergyField = energy / (2*PI*r+1)
 }
 
 func (p *Particle) CalcResultantMovimentByAxle(pAxlePos, pTargetAxlePos int, energyField float64) int {
@@ -55,10 +60,17 @@ func (p *Particle) CalcResultantMovimentByAxle(pAxlePos, pTargetAxlePos int, ene
 	}
 }
 
-func (p *Particle) InteractWith(pTarget *Particle) {
+func (p *Particle) InteractWith(pTarget *Particle, winWidth, winHeight int) {
 	energyField := p.CalcEnergyFieldIn(pTarget)
 	pTarget.SetPosition(
 		p.CalcResultantMovimentByAxle(p.Xpos, pTarget.Xpos, energyField),
 		p.CalcResultantMovimentByAxle(p.Ypos, pTarget.Ypos, energyField),
+		winWidth, winHeight,
 	)
+}
+
+func (p *Particle) GetClone() *Particle {
+	clone := *p
+	clone.Rect = &sdl.Rect{W: RECT_WIDTH, H: RECT_HEIGHT}
+	return &clone
 }
