@@ -48,8 +48,8 @@ func main() {
 	defer renderer.Destroy()
 
 	var environment []*particle.Particle
-	environment = append(environment, particle.GenerateArrayOf(proton, 50, WIN_WIDTH, WIN_HEIGHT)...)
-	environment = append(environment, particle.GenerateArrayOf(electron, 50, WIN_WIDTH, WIN_HEIGHT)...)
+	environment = append(environment, particle.GenerateArrayOf(proton, 80, WIN_WIDTH, WIN_HEIGHT)...)
+	environment = append(environment, particle.GenerateArrayOf(electron, 400, WIN_WIDTH, WIN_HEIGHT)...)
 
 	for _, p := range environment {
 		p.SetRandomPosition(WIN_WIDTH, WIN_HEIGHT)
@@ -69,15 +69,15 @@ func main() {
 		for _, p := range environment {
 			for _, subp := range environment {
 				p.InteractWith(subp, WIN_WIDTH, WIN_HEIGHT)
-				renderer.SetDrawColor(
-					p.Color[0],
-					p.Color[1],
-					p.Color[2],
-					p.Color[3],
-				)
-				renderer.DrawRect(p.Rect)
-				renderer.FillRect(p.Rect)
 			}
+			renderer.SetDrawColor(
+				p.Color[0],
+				p.Color[1],
+				p.Color[2],
+				p.Color[3],
+			)
+			renderer.DrawRect(p.Rect)
+			renderer.FillRect(p.Rect)
 		}
 
 		renderer.Present()
